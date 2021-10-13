@@ -1,4 +1,4 @@
-import sys
+import sys, csv, datetime
 from PyQt5.QtCore import QDateTime, Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
         QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
@@ -22,7 +22,9 @@ from oob_parser import uartParserSDK
 from gui_threads import *
 from graphUtilities import *
 from gl_classes import GLTextItem
+
 compileGui = 0
+now = datetime.datetime.now()
 #only when compiling
 if (compileGui):
     from fbs_runtime.application_context.PyQt5 import ApplicationContext
@@ -582,16 +584,12 @@ class Window(QDialog):
         classifierOutput = parsedData[7]
         fallDetEn = 0
         indicesIn = []
-
+        
+        wr.writerow([pointCloud, targets, indexes, numTargets, self.frameNum, fail, classifierOutput, now])
         #print('graph numPoints = ',numPoints)
         #print('graph point cloud X = ',pointCloud[0,0])
         #print('graph point cloud Y = ',pointCloud[1,0])
         #print('graph point cloud Z = ',pointCloud[2,0])
-
-        # f.write("%d"%numPoints) # 지울 것
-        # f.write("%d"%pointCloud[0,0])
-        # f.write("%d"%pointCloud[1,0])
-        # f.write("%d"%pointCloud[2,0])
 
         #pass target XYZ vals and rotate due to elevation tilt angle (rotX uses Euler rotation around X axis)
         #print('elev_tilt = ',self.profile['elev_tilt'])
@@ -907,8 +905,9 @@ class Window(QDialog):
         print('3d: ', self.threeD)
 
 if __name__ == '__main__':
-    f = open("Data.csv", 'w')
-    if (compileGui):
+    f = open('test.csv', 'w', encoding='utf-8', newline='')
+    wr = csv.writer(f)
+    if (compileGui): # compileGui가 0이기 때문에 실행하지 않음
         appctxt = ApplicationContext()
         app = QApplication(sys.argv)
         screen = app.primaryScreen()
@@ -919,8 +918,13 @@ if __name__ == '__main__':
         sys.exit(exit_code)
     else:
         app = QApplication(sys.argv)
+        # 프로그램을 만들기위한 객체 생성
+        # https://onlytojay.medium.com/pyside2-1-%EA%B8%B0%EB%B3%B8%EB%8F%99%EC%9E%91%EC%9B%90%EB%A6%AC-72ea6572a65b
         screen = app.primaryScreen()
+        # https://stackoverflow.com/questions/35887237/current-screen-size-in-python3-with-pyqt5
         size = screen.size()
         main = Window(size=size)
-        main.show()
+        main.show() # 창 보여주기
         sys.exit(app.exec_())
+        # 앱을 무한 루프로 만들게 하기 위한 코드, exec는 execute의 약자이며 app이 종료되면 0을 반환
+        f.close()
