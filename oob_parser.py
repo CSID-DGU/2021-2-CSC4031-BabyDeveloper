@@ -5,6 +5,7 @@ import binascii
 import time
 import numpy as np
 import math
+# import debugpy
 
 from graphUtilities import rotX
 
@@ -235,7 +236,7 @@ class uartParserSDK():
         self.polar2Cart3D()
 
     #decode 2D People Counting Target List TLV
-    def parseDetectedTracks(self, data, tlvLength):
+    def parseDetectedTracks(self, data, tlvLength): # 데이터 추출
         if (self.plotDimension):
             targetStruct = 'I8f9ff'
         else:
@@ -794,6 +795,7 @@ class uartParserSDK():
     #   8. classifier output
     # Point Cloud and Target structure are liable to change based on the lab. Output is always cartesian.
     def readAndParseUart(self):
+        #debugpy.debug_this_thread()
         self.fail = 0
         if (self.replay):
             return self.replayHist()
