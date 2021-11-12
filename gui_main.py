@@ -573,23 +573,25 @@ class Window(QDialog):
         updateStart = int(round(time.time()*1000))
         self.useFilter = 0
         classifierOutput = []
-        pointCloud = parsedData[0] #pointCloud
-        targets = parsedData[1] #target 개수
+        pointCloud = parsedData[0]
+        targets = parsedData[1]
         #print ('update graph targets = ',parsedData[1])
         indexes = parsedData[2]
-        numPoints = parsedData[3] #포인트 클라우드에 잡힌 포인트 개수
-        numTargets = parsedData[4] #포인트 클라우드에 잡힌 타겟 개수
+        numPoints = parsedData[3]
+        numTargets = parsedData[4]
         self.frameNum = parsedData[5]
         fail = parsedData[6]
         classifierOutput = parsedData[7]
         fallDetEn = 0
         indicesIn = []
         
-        wr.writerow([[pointCloud], [targets], [indexes], [numPoints], [numTargets], [self.frameNum], [fail], [classifierOutput], now])
+        #wr.writerow([pointCloud, now])
+        #wr.writerow([[pointCloud], [targets], [indexes], [numPoints], [numTargets], [self.frameNum], [fail], [classifierOutput], now])
         #print('graph numPoints = ',numPoints)
         #print('graph point cloud X = ',pointCloud[0,0])
         #print('graph point cloud Y = ',pointCloud[1,0])
         #print('graph point cloud Z = ',pointCloud[2,0])
+        #print(now)
 
         #pass target XYZ vals and rotate due to elevation tilt angle (rotX uses Euler rotation around X axis)
         #print('elev_tilt = ',self.profile['elev_tilt'])
@@ -609,10 +611,10 @@ class Window(QDialog):
             #print('graph point cloud rotated pt = ',rotPointDataX,rotPointDataY,rotPointDataZ)
             #print('graph point cloud Y = ',pointCloud[1][i])
             #print('graph point cloud Z = ',pointCloud[2][i])
-            pointCloud[0,i] = rotPointDataX #x좌표
-            pointCloud[1,i] = rotPointDataY #y좌표
-            pointCloud[2,i] = rotPointDataZ #z좌표
-            wr.writerow([pointCLoud[0, i], [pointCLoud[1, i], [pointCLoud[2, i]])
+            pointCloud[0,i] = rotPointDataX
+            pointCloud[1,i] = rotPointDataY
+            pointCloud[2,i] = rotPointDataZ
+            f.write("point_id: {} x: {} y: {}, z: {}".format(i+1, pointCloud[0,i], pointCloud[1,i], pointCloud[2,i]))
 
         if (fail != 1):
             #left side
@@ -906,8 +908,10 @@ class Window(QDialog):
         print('3d: ', self.threeD)
 
 if __name__ == '__main__':
-    f = open('test.csv', 'w', encoding='utf-8', newline='')
-    wr = csv.writer(f)
+    #f = open('test.csv', 'w', encoding='utf-8', newline='')
+    #wr = csv.writer(f)
+    #wr.writerow(["pointCloud", "targets", "indexes", "numPoints", "numTargets", "self.frameNum", "fail", "classifierOutput", "time"])
+    f = open('test.txt', encoding='utf-8', newline='')
     if (compileGui): # compileGui가 0이기 때문에 실행하지 않음
         appctxt = ApplicationContext()
         app = QApplication(sys.argv)
