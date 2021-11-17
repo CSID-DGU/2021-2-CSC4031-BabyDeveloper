@@ -23,6 +23,9 @@ from gui_threads import *
 from graphUtilities import *
 from gl_classes import GLTextItem
 
+# 추가한 모듈
+from analyzePointCloud import *
+
 
 compileGui = 0
 now = datetime.datetime.now()
@@ -606,7 +609,7 @@ class Window(QDialog):
         #pass pointCloud XYZ vals and rotate due to elevation tilt angle (rotX uses Euler rotation around X axis)
         timeNow = datetime.datetime.now() # 현재 시간 업데이트
         f.write("\n\nframe : {}\ntime: {}\n".format(self.frameNum, timeNow)) # 프레임 번호
-
+        
         for i in range(numPoints):
             #print('graph point cloud pt = ',pointCloud[:,i])
             #print('graph point cloud Y = ',pointCloud[1][i])
@@ -618,10 +621,17 @@ class Window(QDialog):
             pointCloud[0,i] = rotPointDataX
             pointCloud[1,i] = rotPointDataY
             pointCloud[2,i] = rotPointDataZ
-            f.write("point_id: {} x: {} y: {} z: {}\n".format(i, pointCloud[0,i], pointCloud[1,i], pointCloud[2,i]))
+            f.write("point_id: {} x: {} y: {} z: {} doppler: {} snr: {}\n".format(i, pointCloud[0,i], pointCloud[1,i], pointCloud[2,i], pointCloud[3,i], pointCloud[4,i]))
             #f.write("header:\n  seq: 0\n  stamp:\n    secs: 0\n    nsecs: 0\n  frame_id: \"ti_mmwave\"\npoint_id: {}\nx: {}\n y: {}\n z: {}\nrange: 0\nvelocity: 0.0\ndopper_bin: 0\nbearing: 0\nintensity: 0\n---\n".format(i+1, pointCloud[0,i], pointCloud[1,i], pointCloud[2,i]))
         for i in range(numTargets):
             f.write("target_id: {} target_x: {} target_y: {} target_z: {}\n".format(targets[0, i], targets[1, i], targets[2, i], targets[3, i]))
+        
+        # DBSCAN을 활용한 Target
+        # customTarget = analyzePoint(pointCloud)
+        
+        # for i in range(len(customTarget)) :
+        #    f.write("customTarget x : {}, y : {}\n".format(customTarget[i][0], customTarget[i][1]))
+        
         if (fail != 1):
             #left side
             pointstr = 'Points: '+str(numPoints)
@@ -789,7 +799,7 @@ class Window(QDialog):
         #search for latest mmwave toolbox
         largest = -1
 
-        root = "C:/ti/"
+        root = "C:/"
         iwrTools = "mmwave_industrial_toolbox"
         dirs = os.listdir(root)
 
@@ -913,11 +923,14 @@ class Window(QDialog):
             self.threeD = 1
         print('3d: ', self.threeD)
 
+
 if __name__ == '__main__':
     #f = open('test.csv', 'w', encoding='utf-8', newline='')
     #wr = csv.writer(f)
     #wr.writerow(["pointCloud", "targets", "indexes", "numPoints", "numTargets", "self.frameNum", "fail", "classifierOutput", "time"])
-    f = open('test.txt', 'w', encoding='utf-8', newline='')
+    d, t = str(now).split(" ")
+    h, m, _ = t.split(":")
+    f = open("{} {}{}.txt".format(d, h, m), 'w', encoding='utf-8', newline='')
     if (compileGui): # compileGui가 0이기 때문에 실행하지 않음
         appctxt = ApplicationContext()
         app = QApplication(sys.argv)
