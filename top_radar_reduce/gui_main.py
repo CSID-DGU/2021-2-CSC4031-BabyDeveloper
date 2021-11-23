@@ -26,6 +26,10 @@ from gl_classes import GLTextItem
 # 추가한 모듈
 from analyzePointCloud import *
 
+# n포인트 클라우드 설정
+nFrame = 5
+nFramePointCloud = []
+index = 0
 
 compileGui = 0
 now = datetime.datetime.now()
@@ -588,6 +592,7 @@ class Window(QDialog):
         classifierOutput = parsedData[7]
         fallDetEn = 0
         indicesIn = []
+
         
         #wr.writerow([pointCloud, now])
         #wr.writerow([[pointCloud], [targets], [indexes], [numPoints], [numTargets], [self.frameNum], [fail], [classifierOutput], now])
@@ -624,13 +629,34 @@ class Window(QDialog):
             f.write("point_id: {} x: {} y: {} z: {} doppler: {} snr: {}\n".format(i, pointCloud[0,i], pointCloud[1,i], pointCloud[2,i], pointCloud[3,i], pointCloud[4,i]))
             #f.write("header:\n  seq: 0\n  stamp:\n    secs: 0\n    nsecs: 0\n  frame_id: \"ti_mmwave\"\npoint_id: {}\nx: {}\n y: {}\n z: {}\nrange: 0\nvelocity: 0.0\ndopper_bin: 0\nbearing: 0\nintensity: 0\n---\n".format(i+1, pointCloud[0,i], pointCloud[1,i], pointCloud[2,i]))
         for i in range(numTargets):
+            pass
             f.write("target_id: {} target_x: {} target_y: {} target_z: {}\n".format(targets[0, i], targets[1, i], targets[2, i], targets[3, i]))
+         
+        # n프레임 포인트 클라우드
+        global index
+        global nFramePointCloud
+        resultPointCloud = []
+        tempPointCloud = []
         
+        if index < nFrame :
+            pass
+        else :
+            for pointList in nFramePointCloud :
+                for point in pointList :
+                    resultPointCloud.append(point) 
+            nFramePointCloud = nFramePointCloud[1:]
+            
+        for i in range(numPoints) :
+            tempPointCloud.append([pointCloud[0,i], pointCloud[1,i], pointCloud[2,i], pointCloud[3,i], pointCloud[4,i]])
+        nFramePointCloud.append(tempPointCloud)
+        index += 1
+        
+
         # DBSCAN을 활용한 Target
-        # customTarget = analyzePoint(pointCloud)
+        analyzePoint(resultPointCloud, index)
         
         # for i in range(len(customTarget)) :
-        #    f.write("customTarget x : {}, y : {}\n".format(customTarget[i][0], customTarget[i][1]))
+        #    print("customTarget x : {}, y : {}\n".format(customTarget[i][0], customTarget[i][1]))
         
         if (fail != 1):
             #left side
